@@ -1,0 +1,16 @@
+{
+  "ethereum": {
+    "rpc": [
+      "https://rpc.ankr.com/eth"
+    ],
+    "explorer": "https://etherscan.io/tx/",
+    "token": "ETH"
+  },
+  "bsc": {
+    "rpc": [
+      "https://rpc.ankr.com/bsc"
+    ],
+    "explorer": "https://bscscan.com/tx/",
+    "token": "BNB"
+  }
+}

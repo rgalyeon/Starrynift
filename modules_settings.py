@@ -29,6 +29,16 @@ async def withdraw_okx(wallet_info):
 
 
 async def farm_starrynift(wallet_info):
+    """
+    Module mint a pass if it is not on the account and performs daily tasks.
+    The module also checks how much time is left before you can perform a daily task and if you run the module
+    before the time, the software will wait until the task becomes available.
+
+    Parameters
+    ----------
+    sleep_from - minimum sleep delay after pass minting
+    sleep_to - maximum sleep delay after pass minting
+    """
     sleep_after_mint_pass_from = 100
     sleep_after_mint_pass_to = 300
 

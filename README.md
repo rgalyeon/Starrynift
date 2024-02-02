@@ -2,7 +2,7 @@
 # Starrynift
 Software for working with the Starrynift project. Supports multiple OKX accounts, multithreading, encrypts sensitive data, after encryption wallets can be started using only the wallet address (no need to re-enter data).
 
-## Description
+## 🗂️ Description
 With the help of the software you can make a withdrawal BNB from the OKX exchange, register an account with a referral link, mint pass, and perform daily tasks.
 
 **Modules**
@@ -12,7 +12,7 @@ With the help of the software you can make a withdrawal BNB from the OKX exchang
 4. `custom_routes` - module for customizing your own route. Use cases: [withdraw_okx, farm_starrynift] for first entry project, or [withdraw_okx, automatic_routes] to run the script for many days ahead.
 5. `automatic_routes` - module for automatic route building. You can customize the number of required transactions, you can add skipping some transactions (if you want to skip some day). You can configure delays between transactions. You can control the probability of making cheap transactions and expensive ones (this feature is not needed in this project).
 
-## Installation
+## ⚙️ Installation
 ```bash
 git clone https://github.com/rgalyeon/Starrynift.git
 cd Starrynift
@@ -21,7 +21,7 @@ source venv/bin/activate (on MacOs) or .\venv\Scripts\activate (on Windows)
 pip install -r requirements.txt
 ```
 
-## How to run software
+## 🚀 How to run software
 ### 1. First, you must fill in the appropriate columns in the `wallet_data.xslx` table:
 - `address` - wallet address
 - `private` - private key 
@@ -39,6 +39,6 @@ pip install -r requirements.txt
 - Add the wallet addresses you want to run to the `wallet_data.xlsx` file (only wallet addresses are needed after encryption)
 - Run script with `python main.py` command and choose necessary module.
 
-## Contacts
+## 🔗 Contacts
 - [Author](https://t.me/rgalyeon) | [Tradium Community](https://t.me/tradium)
 - Buy me a coffee: `rgalyeon.eth`

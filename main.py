@@ -51,7 +51,6 @@ def get_wallets():
     wallets_data = get_wallet_data()
     for _id, wallet in enumerate(wallets_data, start=1):
         wallets_data[wallet].update({'id': _id, 'address': wallet})
-    print(wallets_data)
     return list(wallets_data.values())
 
 

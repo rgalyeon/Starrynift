@@ -1,3 +1,5 @@
+import random
+
 from .account import Account
 import aiohttp
 from fake_useragent import UserAgent
@@ -149,7 +151,8 @@ class StarryNift(Account):
             while time_to_claim:
                 logger.warning(
                     f"[{self.account_id}][{self.address}] Next claim will be available after {str(timedelta(seconds=time_to_claim))}")
-                await sleep(time_to_claim, time_to_claim + 300)
-            if time_to_claim == 0:
-                await self.daily_claim()
+                await sleep(time_to_claim, time_to_claim + random.randint(100, 500))
+                time_to_claim = await self.get_daily_claim_time()
+                if time_to_claim == 0:
+                    await self.daily_claim()
         await self.logout()

@@ -1,7 +1,6 @@
 import asyncio
 import time
 import random
-from typing import Union
 
 from loguru import logger
 from web3 import AsyncWeb3
@@ -10,7 +9,7 @@ from web3.exceptions import TransactionNotFound
 from web3.middleware import async_geth_poa_middleware
 
 from config import RPC
-from settings import GAS_MULTIPLIER
+from settings import GAS_MULTIPLIER, GWEI
 from eth_account.messages import encode_defunct, SignableMessage
 
 
@@ -41,7 +40,7 @@ class Account:
             "chainId": await self.w3.eth.chain_id,
             "from": self.address,
             "value": value,
-            "gasPrice": self.w3.to_wei(1.01, 'gwei'),
+            "gasPrice": self.w3.to_wei(GWEI, 'gwei'),
             "nonce": await self.w3.eth.get_transaction_count(self.address),
         }
         return tx
@@ -53,7 +52,7 @@ class Account:
 
         return contract
 
-    async def wait_until_tx_finished(self, tx_hash: str, max_wait_time=200):
+    async def wait_until_tx_finished(self, tx_hash: str, max_wait_time=300):
         start_time = time.time()
         while True:
             try:

@@ -153,6 +153,6 @@ class StarryNift(Account):
                     f"[{self.account_id}][{self.address}] Next claim will be available after {str(timedelta(seconds=time_to_claim))}")
                 await sleep(time_to_claim, time_to_claim + random.randint(100, 500))
                 time_to_claim = await self.get_daily_claim_time()
-                if time_to_claim == 0:
-                    await self.daily_claim()
+            if time_to_claim == 0:
+                await self.daily_claim()
         await self.logout()

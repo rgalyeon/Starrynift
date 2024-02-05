@@ -8,6 +8,8 @@ from loguru import logger
 from utils.sleeping import sleep
 from utils.helpers import retry
 from datetime import timedelta
+from settings import SLEEP_FROM, SLEEP_TO
+from web3.exceptions import TransactionNotFound
 
 
 class StarryNift(Account):
@@ -85,11 +87,9 @@ class StarryNift(Account):
         tx_data['data'] = data
         # tx_data['gas'] = 250000
 
-        sgn_tx = await self.sign(tx_data)
-        tx_hash = await self.send_raw_transaction(sgn_tx)
+        tx_hash = await self.send_tx(tx_data)
+        await self.send_mint_hash(tx_hash)
 
-        if await self.wait_until_tx_finished(tx_hash.hex()) and await self.send_mint_hash(tx_hash.hex()):
-            logger.success(f'[{self.account_id}][{self.address}] Successfully mint pass')
 
     async def get_mint_signature(self):
         json_data = {
@@ -100,6 +100,7 @@ class StarryNift(Account):
                                        json=json_data, proxy=self.proxy)
         return (await resp.json()).get('signature')
 
+    @retry
     async def send_mint_hash(self, tx_hash):
         json_data = {
             'txHash': tx_hash
@@ -107,7 +108,11 @@ class StarryNift(Account):
 
         resp = await self.session.post('https://api.starrynift.art/api-v2/webhook/confirm/citizenship/mint',
                                        json=json_data, proxy=self.proxy)
-        return (await resp.json()).get('ok') == 1
+
+        if not (await resp.json()).get('ok') == 1:
+            raise ValueError('Bad response')
+
+        return True
 
     async def daily_claim(self):
         logger.info(f'[{self.account_id}][{self.address}] Start claim points')
@@ -117,12 +122,10 @@ class StarryNift(Account):
         tx_data['data'] = "0x9e4cda43"
         # gas_limit = 90000
 
-        sgn_tx = await self.sign(tx_data)
-        tx_hash = await self.send_raw_transaction(sgn_tx)
+        tx_hash = await self.send_tx(tx_data)
+        await self.send_daily_hash(tx_hash)
 
-        if await self.wait_until_tx_finished(tx_hash.hex()) and await self.send_daily_hash(tx_hash.hex()):
-            logger.success(f'[{self.account_id}][{self.address}] Successfully claimed points')
-
+    @retry
     async def send_daily_hash(self, tx_hash):
         json_data = {
             "txHash": tx_hash
@@ -130,13 +133,26 @@ class StarryNift(Account):
 
         resp = await self.session.post('https://api.starrynift.art/api-v2/webhook/confirm/daily-checkin/checkin',
                                        json=json_data, proxy=self.proxy)
-        return (await resp.json()).get('ok') == 1
+        if not (await resp.json()).get('ok') == 1:
+            raise ValueError('Bad response')
+
+        return True
 
     async def get_daily_claim_time(self):
         return await self.daily_contact.functions.getTimeUntilNextSignIn(self.address).call()
 
     async def logout(self):
         await self.session.close()
+
+    @retry
+    async def send_tx(self, tx_data):
+        sgn_tx = await self.sign(tx_data)
+        tx_hash = await self.send_raw_transaction(sgn_tx)
+        status = await self.wait_until_tx_finished(tx_hash.hex())
+        if not status:
+            raise TransactionNotFound()
+
+        return tx_hash
 
     @retry
     async def farm_starry(self, sleep_after_mint_from, sleep_after_mint_to):
@@ -151,7 +167,7 @@ class StarryNift(Account):
             while time_to_claim:
                 logger.warning(
                     f"[{self.account_id}][{self.address}] Next claim will be available after {str(timedelta(seconds=time_to_claim))}")
-                await sleep(time_to_claim, time_to_claim + random.randint(100, 500))
+                await sleep(time_to_claim, time_to_claim + random.randint(300, 60000))
                 time_to_claim = await self.get_daily_claim_time()
             if time_to_claim == 0:
                 await self.daily_claim()

@@ -74,14 +74,9 @@ def load_wallet_data(password) -> Dict:
     return curr_wallet_data
 
 
-def encrypt_private_keys(password: bytes):
-    wallets_path = Path(WALLET_DATA_PATH)
+def handle_data(wallets_data_df: pd.DataFrame):
 
-    if not wallets_path.exists():
-        raise ValueError(f"File does not exist {wallets_path}")
-
-    wallets_data_df = pd.read_excel(wallets_path, sheet_name=SHEET_NAME)
-
+    wallet_names = wallets_data_df['name'].replace([np.nan], None)
     wallets = wallets_data_df['address'].map(str.lower)
     keys = wallets_data_df['private']
     proxies = wallets_data_df['proxy'].replace([np.nan], None)
@@ -93,12 +88,19 @@ def encrypt_private_keys(password: bytes):
     if USE_PROXY and len(proxies) != 0 and len(proxies.dropna()) != len(wallets.dropna()):
         logger.warning('Count of wallets != count of proxies')
 
+    return wallet_names, wallets, keys, proxies, okx_apis, ref_links
+
+
+def format_data(wallet_names, wallets, keys, proxies, okx_apis, ref_links):
     wallet_data = dict()
-    for wallet, private_key, proxy, okx_api, ref in zip(wallets, keys, proxies, okx_apis, ref_links):
+    for id_, wallet, private_key, proxy, okx_api, ref, name in enumerate(zip(wallets, keys, proxies,
+                                                                             okx_apis, ref_links, wallet_names)):
         okx_api_key, okx_secret, okx_password = None, None, None
         if okx_api:
             okx_api_key, okx_secret, okx_password = okx_api.split(';')
         wallet_data[wallet] = {
+            'address': wallet,
+            'id': name if name else id_,
             'private_key': private_key,
             'proxy': proxy,
             'okx_api': {
@@ -109,19 +111,33 @@ def encrypt_private_keys(password: bytes):
             },
             'ref_link': ref
         }
+    return wallet_data
 
-    fernet = Fernet(password)
-    encrypted_data = fernet.encrypt(json.dumps(wallet_data).encode())
-    with open(ENCRYPTED_DATA_PATH, 'wb') as f:
-        f.write(encrypted_data)
 
-    # clear private keys
+def clean_and_save_data(wallets_data_df: pd.DataFrame):
+    # clear data keys
     wallets_data_df['private'] = [None] * len(wallets_data_df['private'])
     wallets_data_df['proxy'] = [None] * len(wallets_data_df['private'])
     wallets_data_df['okx_api'] = [None] * len(wallets_data_df['private'])
     wallets_data_df['ref_link'] = [None] * len(wallets_data_df['ref_link'])
 
     wallets_data_df.to_excel(WALLET_DATA_PATH, sheet_name='evm', index=False)
+
+
+def encrypt_private_keys(password: bytes):
+    wallets_path = Path(WALLET_DATA_PATH)
+
+    if not wallets_path.exists():
+        raise ValueError(f"File does not exist {wallets_path}")
+
+    wallets_data_df = pd.read_excel(wallets_path, sheet_name=SHEET_NAME)
+    wallet_names, wallets, keys, proxies, okx_apis, ref_links = handle_data(wallets_data_df)
+    wallet_data = format_data(wallet_names, wallets, keys, proxies, okx_apis, ref_links)
+
+    fernet = Fernet(password)
+    encrypted_data = fernet.encrypt(json.dumps(wallet_data).encode())
+    with open(ENCRYPTED_DATA_PATH, 'wb') as f:
+        f.write(encrypted_data)
 
 
 def get_wallet_data() -> Dict:

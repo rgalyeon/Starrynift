@@ -8,7 +8,6 @@ from loguru import logger
 from utils.sleeping import sleep
 from utils.helpers import retry
 from datetime import timedelta
-from settings import SLEEP_FROM, SLEEP_TO
 from web3.exceptions import TransactionNotFound
 
 
@@ -88,7 +87,8 @@ class StarryNift(Account):
         # tx_data['gas'] = 250000
 
         tx_hash = await self.send_tx(tx_data)
-        await self.send_mint_hash(tx_hash.hex())
+        if await self.send_mint_hash(tx_hash.hex()):
+            logger.success(f'[{self.account_id}][{self.address}] Successfully minted')
 
     async def get_mint_signature(self):
         json_data = {
@@ -122,7 +122,8 @@ class StarryNift(Account):
         # gas_limit = 90000
 
         tx_hash = await self.send_tx(tx_data)
-        await self.send_daily_hash(tx_hash.hex())
+        if await self.send_daily_hash(tx_hash.hex()):
+            logger.success(f'[{self.account_id}][{self.address}] Successfully claimed')
 
     @retry
     async def send_daily_hash(self, tx_hash):

@@ -225,6 +225,9 @@ class Okx(Account):
             traceback.print_exc()
             if terminate:
                 exit()
+            else:
+                exchange.close()
+                return False
 
         logger.info(f'Transaction sent. Waiting money from OKX')
         while curr_balance_wei == await self.w3.eth.get_balance(self.address):
@@ -232,3 +235,4 @@ class Okx(Account):
 
         logger.success(f'[{self.account_id}][{self.address}] Successfully withdrawn {amount} {token_name} ')
         await exchange.close()
+        return True

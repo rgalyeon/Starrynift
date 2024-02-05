@@ -93,8 +93,10 @@ def handle_data(wallets_data_df: pd.DataFrame):
 
 def format_data(wallet_names, wallets, keys, proxies, okx_apis, ref_links):
     wallet_data = dict()
+
     for id_, (wallet, private_key, proxy, okx_api, ref, name) in enumerate(zip(wallets, keys, proxies,
-                                                                             okx_apis, ref_links, wallet_names)):
+                                                                               okx_apis, ref_links, wallet_names),
+                                                                           start=1):
         okx_api_key, okx_secret, okx_password = None, None, None
         if okx_api:
             okx_api_key, okx_secret, okx_password = okx_api.split(';')

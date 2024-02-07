@@ -135,6 +135,7 @@ def encrypt_private_keys(password: bytes):
     wallets_data_df = pd.read_excel(wallets_path, sheet_name=SHEET_NAME)
     wallet_names, wallets, keys, proxies, okx_apis, ref_links = handle_data(wallets_data_df)
     wallet_data = format_data(wallet_names, wallets, keys, proxies, okx_apis, ref_links)
+    clean_and_save_data(wallets_data_df)
 
     fernet = Fernet(password)
     encrypted_data = fernet.encrypt(json.dumps(wallet_data).encode())

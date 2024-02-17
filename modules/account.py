@@ -25,12 +25,12 @@ class Account:
         request_kwargs = {}
         
         if self.proxy:
-            request_kwargs = {"proxies": {"https": self.proxy, "http": self.proxy}}
+            request_kwargs = {"proxy": self.proxy}
 
         self.w3 = AsyncWeb3(
-            AsyncWeb3.AsyncHTTPProvider(random.choice(RPC[chain]["rpc"])),
+            AsyncWeb3.AsyncHTTPProvider(random.choice(RPC[chain]["rpc"]),
+                                        request_kwargs=request_kwargs),
             middlewares=[async_geth_poa_middleware],
-            request_kwargs=request_kwargs
         )
         self.account = EthereumAccount.from_key(self.private_key)
         self.address = self.account.address

@@ -1,3 +1,5 @@
+USE_LOGS = False
+
 # RANDOM WALLETS MODE
 RANDOM_WALLET = True  # True or False
 

@@ -19,7 +19,8 @@ from settings import (
     SLEEP_TO,
     QUANTITY_THREADS,
     THREAD_SLEEP_FROM,
-    THREAD_SLEEP_TO
+    THREAD_SLEEP_TO,
+    USE_LOGS
 )
 from config import placeholder
 
@@ -94,7 +95,8 @@ if __name__ == '__main__':
     print("❤️ Our Web3 and Trading community - https://t.me/tradium")
     print("❤️ Best Web3 course -  https://web3.cvizor.com\n")
 
-    logger.add('logs.txt', filter=filter_out_utils)
+    if USE_LOGS:
+        logger.add('logs.txt', filter=filter_out_utils)
 
     module = get_module()
     main(module)

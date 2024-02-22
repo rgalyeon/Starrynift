@@ -23,6 +23,10 @@ from settings import (
     USE_LOGS
 )
 from config import placeholder
+from threading import Lock
+
+
+transaction_lock = Lock()
 
 
 def get_module():

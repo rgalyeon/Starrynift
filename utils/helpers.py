@@ -2,7 +2,6 @@ from loguru import logger
 from settings import RETRY_COUNT
 from utils.sleeping import sleep
 import traceback
-from main import transaction_lock
 
 
 def retry(func):
@@ -10,9 +9,7 @@ def retry(func):
         retries = 0
         while retries <= RETRY_COUNT:
             try:
-                with transaction_lock:
-                    result = await func(*args, **kwargs)
-                    await sleep(5, 10)
+                result = await func(*args, **kwargs)
                 return result
             except Exception as e:
                 logger.error(f"Error | {e}")
